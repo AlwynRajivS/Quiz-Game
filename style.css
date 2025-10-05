@@ -1,0 +1,23 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+}
+.container { padding: 20px; max-width: 600px; margin: auto; }
+button {
+    padding: 10px 20px; margin: 10px;
+    border: none; border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+button:hover { transform: scale(1.1); }
+.optionBtn {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    background: #4caf50;
+    color: white;
+    font-size: 18px;
+}
+.optionBtn:hover { background: #45a049; }

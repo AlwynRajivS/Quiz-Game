@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Join Game</h1>
+    <input type="text" id="playerName" placeholder="Enter Your Name">
+    <input type="text" id="gameCode" placeholder="Enter Game Code">
+    <button onclick="joinGame()">Join</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+function joinGame() {
+    const name = document.getElementById('playerName').value;
+    const code = document.getElementById('gameCode').value;
+    if (!name || !code) return alert('Enter Name & Game Code');
+    localStorage.setItem('playerName', name);
+    localStorage.setItem('gameCode', code);
+    window.location.href = 'game.html';
+}
+</script>
+</body>
+</html>

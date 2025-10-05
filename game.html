@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Quiz Game</h1>
+    <div id="questionBox"></div>
+    <div id="optionsBox"></div>
+    <div id="leaderboard"></div>
+    <button id="nextQuestion" style="display:none;" onclick="nextQuestion()">Next Question</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+let currentQ = 0;
+const playerName = localStorage.getItem('playerName');
+const gameCode = localStorage.getItem('gameCode');
+
+async function loadQuestion() {
+    const res = await fetch('YOUR_GOOGLE_SCRIPT_URL?action=getQuestion&gameCode=' + gameCode + '&index=' + currentQ);
+    const data = await res.json();
+    if (!data.question) return alert('No more questions!');
+    document.getElementById('questionBox').innerText = data.question;
+    const optionsBox = document.getElementById('optionsBox');
+    optionsBox.innerHTML = '';
+    data.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => submitAnswer(i+1, data.correct);
+        btn.classList.add('optionBtn');
+        optionsBox.appendChild(btn);
+    });
+}
+
+async function submitAnswer(choice, correct) {
+    const score = choice === correct ? 10 : 0;
+    await fetch('YOUR_GOOGLE_SCRIPT_URL', {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'submitAnswer',
+            gameCode, playerName, score
+        }),
+        headers: {'Content-Type':'application/json'}
+    });
+    document.getElementById('nextQuestion').style.display = 'block';
+    showLeaderboard();
+}
+
+async function showLeaderboard() {
+    const res = await fetch('YOUR_GOOGLE_SCRIPT_URL?action=getLeaderboard&gameCode=' + gameCode);
+    const leaderboard = await res.json();
+    const lbDiv = document.getElementById('leaderboard');
+    lbDiv.innerHTML = '<h3>Leaderboard</h3>' + leaderboard.map(p=>`${p.name}: ${p.score}`).join('<br>');
+}
+
+function nextQuestion() {
+    currentQ++;
+    document.getElementById('nextQuestion').style.display = 'none';
+    loadQuestion();
+}
+
+// Initial load
+loadQuestion();
+showLeaderboard();
+</script>
+</body>
+</html>

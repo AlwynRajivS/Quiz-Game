@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Host Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Host Panel</h1>
+    <div>
+        <input type="text" id="gameCode" placeholder="Enter Game Code">
+        <button onclick="createGame()">Create Game</button>
+    </div>
+
+    <h2>Upload Questions</h2>
+    <form id="questionForm">
+        <input type="text" id="question" placeholder="Question" required><br>
+        <input type="text" id="option1" placeholder="Option 1" required>
+        <input type="text" id="option2" placeholder="Option 2" required><br>
+        <input type="text" id="option3" placeholder="Option 3" required>
+        <input type="text" id="option4" placeholder="Option 4" required><br>
+        <input type="number" id="correct" placeholder="Correct Option (1-4)" min="1" max="4" required><br>
+        <button type="submit">Add Question</button>
+    </form>
+
+    <button onclick="startGame()">Start Game</button>
+    <div id="status"></div>
+</div>
+
+<script src="script.js"></script>
+<script>
+function createGame() {
+    const code = document.getElementById('gameCode').value;
+    localStorage.setItem('gameCode', code);
+    alert('Game Code created: ' + code);
+}
+
+document.getElementById('questionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const gameCode = localStorage.getItem('gameCode');
+    const question = document.getElementById('question').value;
+    const options = [
+        document.getElementById('option1').value,
+        document.getElementById('option2').value,
+        document.getElementById('option3').value,
+        document.getElementById('option4').value
+    ];
+    const correct = parseInt(document.getElementById('correct').value);
+    
+    // Send to Google Sheets API
+    await fetch('YOUR_GOOGLE_SCRIPT_URL', {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'addQuestion',
+            gameCode, question, options, correct
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+    document.getElementById('status').innerText = 'Question added!';
+    document.getElementById('questionForm').reset();
+});
+
+function startGame() {
+    window.location.href = 'game.html';
+}
+</script>
+</body>
+</html>
