@@ -1,71 +1,141 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Host Panel</title>
-<link rel="stylesheet" href="style.css">
+<title>Kahoot Host Panel</title>
+<style>
+body {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+input, button {
+  margin: 8px 0;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  width: 90%;
+  font-size: 14px;
+}
+
+input {
+  outline: none;
+}
+
+button {
+  background: #ff4081;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #ff79b0;
+}
+
+#status {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #00ffb0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </head>
 <body>
 <div class="container">
-    <h1>Host Panel</h1>
-    <div>
-        <input type="text" id="gameCode" placeholder="Enter Game Code">
-        <button onclick="createGame()">Create Game</button>
-    </div>
+  <h1>🎮 Kahoot Host Panel</h1>
 
-    <h2>Upload Questions</h2>
-    <form id="questionForm">
-        <input type="text" id="question" placeholder="Question" required><br>
-        <input type="text" id="option1" placeholder="Option 1" required>
-        <input type="text" id="option2" placeholder="Option 2" required><br>
-        <input type="text" id="option3" placeholder="Option 3" required>
-        <input type="text" id="option4" placeholder="Option 4" required><br>
-        <input type="number" id="correct" placeholder="Correct Option (1-4)" min="1" max="4" required><br>
-        <button type="submit">Add Question</button>
-    </form>
+  <input type="text" id="gameCode" placeholder="Enter Game Code">
+  <button onclick="createGame()">Create Game</button>
 
-    <button onclick="startGame()">Start Game</button>
-    <div id="status"></div>
+  <h2>📋 Upload Question</h2>
+  <form id="questionForm">
+    <input type="text" id="question" placeholder="Question" required>
+    <input type="text" id="option1" placeholder="Option 1" required>
+    <input type="text" id="option2" placeholder="Option 2" required>
+    <input type="text" id="option3" placeholder="Option 3" required>
+    <input type="text" id="option4" placeholder="Option 4" required>
+    <input type="number" id="correct" placeholder="Correct Option (1-4)" min="1" max="4" required>
+    <button type="submit">➕ Add Question</button>
+  </form>
+
+  <button onclick="startGame()">🚀 Start Game</button>
+  <div id="status"></div>
 </div>
 
-<script src="script.js"></script>
 <script>
 function createGame() {
-    const code = document.getElementById('gameCode').value;
-    localStorage.setItem('gameCode', code);
-    alert('Game Code created: ' + code);
+  const code = document.getElementById('gameCode').value.trim();
+  if (!code) return alert("Please enter a Game Code!");
+  localStorage.setItem('gameCode', code);
+  alert('✅ Game Created! Code: ' + code);
 }
 
 document.getElementById('questionForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const gameCode = localStorage.getItem('gameCode');
-    const question = document.getElementById('question').value;
-    const options = [
-        document.getElementById('option1').value,
-        document.getElementById('option2').value,
-        document.getElementById('option3').value,
-        document.getElementById('option4').value
-    ];
-    const correct = parseInt(document.getElementById('correct').value);
-    
-    // Send to Google Sheets API
-    await fetch('https://script.google.com/macros/s/AKfycbymLXRPkw3sdMmb5vq96v0lehR5YjxTOSZ3VjgAL87hL0_siVkRXq54lfWtK8_y6YKu/exec', {
-        method: 'POST',
-        body: JSON.stringify({
-            action: 'addQuestion',
-            gameCode, question, options, correct
-        }),
-        headers: { 'Content-Type': 'application/json' }
-    });
-    document.getElementById('status').innerText = 'Question added!';
-    document.getElementById('questionForm').reset();
+  e.preventDefault();
+  const gameCode = localStorage.getItem('gameCode');
+  if (!gameCode) return alert("Please create a Game Code first!");
+
+  const question = document.getElementById('question').value;
+  const options = [
+    document.getElementById('option1').value,
+    document.getElementById('option2').value,
+    document.getElementById('option3').value,
+    document.getElementById('option4').value
+  ];
+  const correct = parseInt(document.getElementById('correct').value);
+
+  const response = await fetch('https://script.google.com/macros/s/AKfycbymLXRPkw3sdMmb5vq96v0lehR5YjxTOSZ3VjgAL87hL0_siVkRXq54lfWtK8_y6YKu/exec', {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'addQuestion',
+      gameCode, question, options, correct
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const result = await response.json();
+  if (result.status === "success") {
+    document.getElementById('status').innerText = "✅ Question added successfully!";
+  } else {
+    document.getElementById('status').innerText = "❌ Failed to add question!";
+  }
+
+  document.getElementById('questionForm').reset();
 });
 
 function startGame() {
-    window.location.href = 'game.html';
+  window.location.href = 'game.html';
 }
 </script>
 </body>
 </html>
-
